@@ -1,12 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useWordle from "../hooks/useWordle";
+import Grid from "./Grid";
+import Modal from "./Modal";
 
 const Wordle = ({ solution }) => {
 	const { handleKeys, currentGuess, guesses, isCorrect, turn } =
 		useWordle(solution);
 
+	const [showModal, setShowModal] = useState(false);
+
 	useEffect(() => {
 		document.addEventListener("keyup", handleKeys);
+
+		if (isCorrect) {
+			setShowModal(true);
+			document.removeEventListener("keyup", handleKeys);
+		}
+		if (turn > 5) {
+			setShowModal(true);
+			document.removeEventListener("keyup", handleKeys);
+		}
+
 		return () => {
 			document.removeEventListener("keyup", handleKeys);
 		};
@@ -19,6 +33,19 @@ const Wordle = ({ solution }) => {
 		<>
 			<p>Solution is: {solution.word}</p>
 			<p>Current Guess is: {currentGuess}</p>
+			<Grid
+				guesses={guesses}
+				isCorrect={isCorrect}
+				turn={turn}
+				currentGuess={currentGuess}
+			/>
+			{showModal && (
+				<Modal
+					isCorrect={isCorrect}
+					solution={solution.word}
+					turn={turn}
+				/>
+			)}
 		</>
 	);
 };
